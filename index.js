@@ -45,7 +45,8 @@ sockserver.on("connection", (ws) => {
 });
 
 async function sendChatGPT(content) {
-  const messages = [{ role: "user", content: content }];
+  const userContent = content + ":" + "Please keep your response to 20 words or less.";
+  const messages = [{ role: "user", content: userContent }];
   return new Promise(async (resolve, reject) => {
     try {
       const chatGPTResponse = await openai.post("/chat/completions", {
