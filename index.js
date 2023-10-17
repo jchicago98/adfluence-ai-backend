@@ -5,9 +5,14 @@ const WebSocket = require("ws");
 var bodyParser = require("body-parser");
 const app = express();
 const http = require("http");
+const cors = require('cors');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
+app.use(cors({
+  origin: '*'
+}));
 
 const openAIApiKey = process.env.API_KEY_OPEN_AI;
 
@@ -66,6 +71,13 @@ async function sendChatGPT(content) {
 }
 
 const port = 443;
-server.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+server.listen(port, (error) => {
+  if (!error) {
+      console.log("Server is Successfully Running,and App is listening on port " + port)
+  }
+
+  else {
+      console.log("Error occurred, server can't start", error);
+  }
+}
+);
