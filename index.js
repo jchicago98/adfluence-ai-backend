@@ -1,37 +1,38 @@
 require("dotenv").config();
 const express = require("express");
 const axios = require("axios");
-const WebSocket = require("ws");
+const { Server } = require('ws');
 var bodyParser = require("body-parser");
-const app = express();
+// const app = express();
 const http = require("http");
 const cors = require("cors");
-
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-
-app.use(
-  cors({
-    origin: "*",
-  })
-);
-
+const adfluenceController = express.Router();
+const path = require('path');
 const openAIApiKey = process.env.API_KEY_OPEN_AI;
+const PORT = 443;
+const INDEX = "/index.html";
 
-const openai = axios.create({
-  baseURL: "https://api.openai.com/v1",
-  headers: {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${openAIApiKey}`,
-  },
-});
+// adfluenceController.use(bodyParser.urlencoded({ extended: false }));
+// adfluenceController.use(bodyParser.json());
 
-const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
-  res.end('Hello World!');
-});
-const sockserver = new WebSocket.Server({ server });
+// app.use('/', adfluenceController);
+
+// adfluenceController.get('/', (req, res)=>{
+//   res.sendFile(INDEX, { root: __dirname });
+// })
+
+const server = express()
+  // .use((req, res) => res.sendFile(INDEX, { root: __dirname }))
+  .use(cors({origin: "*"}))
+  .use(bodyParser.json())
+  .use(bodyParser.urlencoded({ extended: false }))
+  .use('/', adfluenceController)
+  .listen(PORT, () => console.log(`Server is Successfully Running,and App is listening on port: ${PORT}`));
+const sockserver = new Server({ server });
+
+adfluenceController.get('/', (req, res)=>{
+  res.sendFile(path.join(__dirname, '/index.html'));
+})
 
 sockserver.on("connection", (ws) => {
   console.log("New client connected!");
@@ -57,6 +58,14 @@ sockserver.on("connection", (ws) => {
   };
 });
 
+const openai = axios.create({
+  baseURL: "https://api.openai.com/v1",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${openAIApiKey}`,
+  },
+});
+
 async function sendChatGPT(content) {
   const userContent =
     content + ":" + "Please keep your response to 20 words or less.";
@@ -75,19 +84,3 @@ async function sendChatGPT(content) {
     }
   });
 }
-
-const port = 443;
-const INDEX = "/index.html";
-app.use((req, res) => {
-  res.sendFile(INDEX, { root: __dirname });
-});
-
-server.listen(port, (error) => {
-  if (!error) {
-    console.log(
-      "Server is Successfully Running,and App is listening on port " + port
-    );
-  } else {
-    console.log("Error occurred, server can't start", error);
-  }
-});
