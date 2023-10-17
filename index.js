@@ -25,7 +25,7 @@ const openai = axios.create({
 });
 
 const server = http.createServer(app);
-const sockserver = new WebSocket.Server({ server });
+const sockserver = new WebSocket.Server({ server, path: '/helper' });
 
 
 sockserver.on("connection", (ws) => {
