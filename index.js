@@ -89,10 +89,12 @@
 // }
 
 
-
+require("dotenv").config();
 var express = require('express');
 var app = express();
 var expressWs = require('express-ws')(app);
+
+const port = process.env.PORT || 3000;
 
 app.use(function (req, res, next) {
   console.log('middleware');
@@ -112,4 +114,4 @@ app.ws('/', function(ws, req) {
   console.log('socket', req.testing);
 });
 
-app.listen(443);
+app.listen(port);
