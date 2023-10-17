@@ -5,14 +5,16 @@ const WebSocket = require("ws");
 var bodyParser = require("body-parser");
 const app = express();
 const http = require("http");
-const cors = require('cors');
+const cors = require("cors");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-app.use(cors({
-  origin: '*'
-}));
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 
 const openAIApiKey = process.env.API_KEY_OPEN_AI;
 
@@ -25,8 +27,7 @@ const openai = axios.create({
 });
 
 const server = http.createServer(app);
-const sockserver = new WebSocket.Server({ server, path: '/helper' });
-
+const sockserver = new WebSocket.Server({ server });
 
 sockserver.on("connection", (ws) => {
   console.log("New client connected!");
@@ -40,7 +41,7 @@ sockserver.on("connection", (ws) => {
       const userMessage = JSON.stringify(userMessageObj);
       client.send(userMessage);
       const aiResponse = await sendChatGPT(dataString);
-      const aiMessageObj = {ai: aiResponse};
+      const aiMessageObj = { ai: aiResponse };
       const aiMessage = JSON.stringify(aiMessageObj);
       client.send(aiMessage);
     });
@@ -53,7 +54,8 @@ sockserver.on("connection", (ws) => {
 });
 
 async function sendChatGPT(content) {
-  const userContent = content + ":" + "Please keep your response to 20 words or less.";
+  const userContent =
+    content + ":" + "Please keep your response to 20 words or less.";
   const messages = [{ role: "user", content: userContent }];
   return new Promise(async (resolve, reject) => {
     try {
@@ -71,6 +73,8 @@ async function sendChatGPT(content) {
 }
 
 const port = 443;
+const INDEX = "/index.html";
+app.use((req, res) => res.sendFile(INDEX, { root: __dirname }))
 server.listen(port, (error) => {
   if (!error) {
       console.log("Server is Successfully Running,and App is listening on port " + port)
