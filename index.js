@@ -74,14 +74,16 @@ async function sendChatGPT(content) {
 
 const port = 443;
 const INDEX = "/index.html";
-app.use((req, res) => res.sendFile(INDEX, { root: __dirname }))
+app.use((req, res) => {
+  res.sendFile(INDEX, { root: __dirname });
+  res.send('Welcome')
+});
 server.listen(port, (error) => {
   if (!error) {
-      console.log("Server is Successfully Running,and App is listening on port " + port)
+    console.log(
+      "Server is Successfully Running,and App is listening on port " + port
+    );
+  } else {
+    console.log("Error occurred, server can't start", error);
   }
-
-  else {
-      console.log("Error occurred, server can't start", error);
-  }
-}
-);
+});
