@@ -26,7 +26,11 @@ const openai = axios.create({
   },
 });
 
-const server = http.createServer(app);
+const server = http.createServer((req, res) => {
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'text/plain');
+  res.end('Hello World!');
+});
 const sockserver = new WebSocket.Server({ server });
 
 sockserver.on("connection", (ws) => {
@@ -76,8 +80,8 @@ const port = 443;
 const INDEX = "/index.html";
 app.use((req, res) => {
   res.sendFile(INDEX, { root: __dirname });
-  res.send('Welcome')
 });
+
 server.listen(port, (error) => {
   if (!error) {
     console.log(
