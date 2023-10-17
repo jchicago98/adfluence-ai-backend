@@ -1,10 +1,10 @@
 require("dotenv").config();
 const express = require("express");
 const axios = require("axios");
-const WebSocket = require("websocket").w3cwebsocket;
-const { WebSocketServer } = require("ws");
+const WebSocket = require("ws");
 var bodyParser = require("body-parser");
 const app = express();
+const http = require("http");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -19,7 +19,10 @@ const openai = axios.create({
   },
 });
 
-const sockserver = new WebSocketServer({ port: 443 });
+const server = http.createServer(app);
+const sockserver = new WebSocket.Server({ server });
+
+
 sockserver.on("connection", (ws) => {
   console.log("New client connected!");
   ws.on("close", () => {
@@ -62,7 +65,7 @@ async function sendChatGPT(content) {
   });
 }
 
-const port = 3000;
-app.listen(port, () => {
+const port = 443;
+server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
