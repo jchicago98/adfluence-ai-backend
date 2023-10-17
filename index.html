@@ -3,6 +3,7 @@
     <script>
       let protocol = window.location.protocol;
       let HOST = location.origin;
+      console.log(HOST);
       if (protocol == "http:") {
         HOST = location.origin.replace(/^http/, "ws");
       } else if (protocol == "https:") {

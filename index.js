@@ -1,37 +1,40 @@
 require("dotenv").config();
 const express = require("express");
 const axios = require("axios");
-const { Server } = require('ws');
+const { Server } = require("ws");
 var bodyParser = require("body-parser");
-// const app = express();
 const http = require("http");
 const cors = require("cors");
 const adfluenceController = express.Router();
-const path = require('path');
+const path = require("path");
 const openAIApiKey = process.env.API_KEY_OPEN_AI;
 const PORT = 443;
 const INDEX = "/index.html";
 
-// adfluenceController.use(bodyParser.urlencoded({ extended: false }));
-// adfluenceController.use(bodyParser.json());
-
-// app.use('/', adfluenceController);
-
-// adfluenceController.get('/', (req, res)=>{
-//   res.sendFile(INDEX, { root: __dirname });
-// })
-
 const server = express()
   // .use((req, res) => res.sendFile(INDEX, { root: __dirname }))
-  .use(cors({origin: "*"}))
+  .use(cors({ origin: "*" }))
   .use(bodyParser.json())
   .use(bodyParser.urlencoded({ extended: false }))
-  .use('/', adfluenceController)
-  .listen(PORT, () => console.log(`Server is Successfully Running,and App is listening on port: ${PORT}`));
+  .use("/", adfluenceController)
+  .listen(PORT, () =>
+    console.log(
+      `Server is Successfully Running,and App is listening on port: ${PORT}`
+    )
+  );
 const sockserver = new Server({ server });
 
-adfluenceController.get('/', (req, res)=>{
-  res.sendFile(path.join(__dirname, '/index.html'));
+adfluenceController.get("/", (req, res) => {
+  res.sendFile(`${__dirname}/index.html`, (err) => {
+    if (err) {
+      console.log(err);
+      res.end(err.message);
+    }
+  });
+});
+
+adfluenceController.get('/get', (req, res) => {
+  res.send('Welcome');
 })
 
 sockserver.on("connection", (ws) => {
