@@ -2,9 +2,10 @@
   <head>
     <script>
       let protocol = window.location.protocol;
+      console.log(protocol.length);
       let HOST = location.origin;
       console.log(HOST);
-      if (protocol == "http:") {
+      if (protocol == "http:" && protocol.length == 5) {
         HOST = location.origin.replace(/^http/, "ws");
       } else if (protocol == "https:") {
         HOST = location.origin.replace(/^https/, "wss");
