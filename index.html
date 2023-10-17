@@ -7,7 +7,7 @@
       if (protocol == "http:") {
         HOST = location.origin.replace(/^http/, "ws");
       } else if (protocol == "https:") {
-        HOST = location.origin.replace(/^https/, "ws");
+        HOST = location.origin.replace(/^https/, "wss");
       }
       console.log(HOST);
 
