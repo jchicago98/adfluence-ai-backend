@@ -3,16 +3,14 @@ const express = require("express");
 const axios = require("axios");
 const { Server } = require("ws");
 var bodyParser = require("body-parser");
-const http = require("http");
 const cors = require("cors");
 const adfluenceController = express.Router();
-const path = require("path");
 const openAIApiKey = process.env.API_KEY_OPEN_AI;
 const PORT = process.env.PORT || 443;
-const INDEX = "/index.html";
+const uuid = require("uuid");
+const { client } = require("websocket");
 
 const server = express()
-  // .use((req, res) => res.sendFile(INDEX, { root: __dirname }))
   .use(cors({ origin: "*" }))
   .use(bodyParser.json())
   .use(bodyParser.urlencoded({ extended: false }))
@@ -23,6 +21,7 @@ const server = express()
     )
   );
 const sockserver = new Server({ server });
+const clients = new Map();
 
 adfluenceController.get("/", (req, res) => {
   res.sendFile(`${__dirname}/index.html`, (err) => {
@@ -33,27 +32,32 @@ adfluenceController.get("/", (req, res) => {
   });
 });
 
-adfluenceController.get('/get', (req, res) => {
-  res.send('Welcome');
-})
-
 sockserver.on("connection", (ws) => {
   console.log("New client connected!");
   ws.on("close", () => {
     console.log("Client has disconnected!");
+    clients.delete(ws);
   });
-  ws.on("message", (data) => {
-    sockserver.clients.forEach(async (client) => {
-      let dataString = `${data}`;
+
+  const clientId = uuid.v4();
+  clients.set(clientId, ws);
+  ws.send(clientId);
+
+  ws.on("message", async (data) => {
+    const userObj = JSON.parse(data);
+    const client = clients.get(userObj.clientId);
+
+    if (client) {
+      let dataString = userObj.userMessage;
       const userMessageObj = { user: dataString };
       const userMessage = JSON.stringify(userMessageObj);
       client.send(userMessage);
       const aiResponse = await sendChatGPT(dataString);
       const aiMessageObj = { ai: aiResponse };
       const aiMessage = JSON.stringify(aiMessageObj);
+      console.log(aiResponse);
       client.send(aiMessage);
-    });
-    console.log(`${data}`);
+    }
     //createDatabaseAndCollections(`${data}`);
   });
   ws.onerror = function () {
