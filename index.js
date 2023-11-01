@@ -47,17 +47,16 @@ sockserver.on("connection", (ws) => {
     const userObj = JSON.parse(data);
     const client = clients.get(userObj.clientId);
 
-    if (client) {
-      let dataString = userObj.userMessage;
-      const userMessageObj = { user: dataString };
-      const userMessage = JSON.stringify(userMessageObj);
-      client.send(userMessage);
-      const aiResponse = await sendChatGPT(dataString);
-      const aiMessageObj = { ai: aiResponse };
-      const aiMessage = JSON.stringify(aiMessageObj);
-      console.log(aiResponse);
-      client.send(aiMessage);
-    }
+    let dataString = userObj.userMessage;
+    const userMessageObj = { user: dataString };
+    const userMessage = JSON.stringify(userMessageObj);
+    client.send(userMessage);
+    const aiResponse = await sendChatGPT(dataString);
+    const aiMessageObj = { ai: aiResponse };
+    const aiMessage = JSON.stringify(aiMessageObj);
+    console.log(aiResponse);
+    client.send(aiMessage);
+
     //createDatabaseAndCollections(`${data}`);
   });
   ws.onerror = function () {
