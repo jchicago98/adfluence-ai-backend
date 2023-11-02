@@ -9,6 +9,7 @@ const openAIApiKey = process.env.API_KEY_OPEN_AI;
 const PORT = process.env.PORT || 443;
 const uuid = require("uuid");
 const { client } = require("websocket");
+const { mongoConnectionApp, createDatabaseAndCollections } = require('./database-connection');
 
 const server = express()
   .use(cors({ origin: "*" }))
@@ -57,7 +58,7 @@ sockserver.on("connection", (ws) => {
     console.log(aiResponse);
     client.send(aiMessage);
 
-    //createDatabaseAndCollections(`${data}`);
+    //createDatabaseAndCollections('Hello World!');
   });
   ws.onerror = function () {
     console.log("websocket error");
