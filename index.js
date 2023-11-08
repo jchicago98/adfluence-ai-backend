@@ -9,7 +9,10 @@ const openAIApiKey = process.env.API_KEY_OPEN_AI;
 const PORT = process.env.PORT || 443;
 const uuid = require("uuid");
 const { client } = require("websocket");
-const { mongoConnectionApp, createDatabaseAndCollections } = require('./database-connection');
+const {
+  mongoConnectionApp,
+  createDatabaseAndCollections,
+} = require("./database-connection");
 
 const server = express()
   .use(cors({ origin: "*" }))
@@ -46,19 +49,32 @@ sockserver.on("connection", (ws) => {
 
   ws.on("message", async (data) => {
     const userObj = JSON.parse(data);
+    console.log(userObj);
     const client = clients.get(userObj.clientId);
 
-    let dataString = userObj.userMessage;
-    const userMessageObj = { user: dataString };
-    const userMessage = JSON.stringify(userMessageObj);
-    client.send(userMessage);
-    const aiResponse = await sendChatGPT(dataString);
-    const aiMessageObj = { ai: aiResponse };
-    const aiMessage = JSON.stringify(aiMessageObj);
-    console.log(aiResponse);
-    client.send(aiMessage);
+    if (userObj.userMessage) {
+      let dataString = userObj.userMessage;
+      const userMessageObj = { user: dataString };
+      const userMessage = JSON.stringify(userMessageObj);
+      client.send(userMessage);
+      console.log(userMessage);
+      const aiResponse = await sendChatGPT(dataString);
+      const aiMessageObj = { ai: aiResponse };
+      const aiMessage = JSON.stringify(aiMessageObj);
+      console.log(aiResponse);
+      client.send(aiMessage);
+    }
 
-    //createDatabaseAndCollections('Hello World!');
+    if (userObj.emailAddress) {
+      const userSchema = {
+        firstName: userObj.firstName,
+        lastName: userObj.lastName,
+        emailAddress: userObj.emailAddress,
+      };
+      createDatabaseAndCollections(userSchema);
+    } else {
+      console.log("User does not have an email address");
+    }
   });
   ws.onerror = function () {
     console.log("websocket error");
