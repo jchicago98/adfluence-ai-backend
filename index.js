@@ -12,6 +12,7 @@ const { client } = require("websocket");
 const {
   mongoConnectionApp,
   createDatabaseAndCollections,
+  updateUserConversations
 } = require("./database-connection");
 
 const server = express()
@@ -57,13 +58,37 @@ sockserver.on("connection", (ws) => {
       const userMessageObj = { user: dataString };
       const userMessage = JSON.stringify(userMessageObj);
       client.send(userMessage);
-      console.log(userMessage);
+      console.log(dataString);
       const aiResponse = await sendChatGPT(dataString);
       const aiMessageObj = { ai: aiResponse };
       const aiMessage = JSON.stringify(aiMessageObj);
       console.log(aiResponse);
       client.send(aiMessage);
+      const userConversation = {
+        emailAddress: "example@gmail.com",
+        user_conversation: [
+          {
+            topic: "Adfluence Topics",
+            list_of_messages: [
+                { user: "Hello Adfluence AI!" },
+                { ai: "Hello user!" }
+            ]
+          },
+          {
+            topic: "How to tell the weather?",
+            list_of_messages: [
+                { user: "How can I tell the weather outside?" },
+                { ai: "You can tell the weather by feeling it and looking outside." }
+            ]
+          }
+        ]
+      }
+      updateUserConversations(userConversation);
     }
+
+    // else if(userObj.userMessage && userObj.emailAddress){
+
+    // }
 
     if (userObj.emailAddress) {
       const userSchema = {
