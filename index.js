@@ -64,31 +64,23 @@ sockserver.on("connection", (ws) => {
       const aiMessage = JSON.stringify(aiMessageObj);
       console.log(aiResponse);
       client.send(aiMessage);
-      const userConversation = {
-        emailAddress: "example@gmail.com",
-        user_conversation: [
-          {
-            topic: "Adfluence Topics",
-            list_of_messages: [
-                { user: "Hello Adfluence AI!" },
-                { ai: "Hello user!" }
-            ]
-          },
-          {
-            topic: "How to tell the weather?",
-            list_of_messages: [
-                { user: "How can I tell the weather outside?" },
-                { ai: "You can tell the weather by feeling it and looking outside." }
-            ]
-          }
-        ]
+      
+      if(userObj.emailAddress){ 
+        const userConversation = {
+          emailAddress: userObj.emailAddress,
+          user_conversation: [
+            {
+              topic: "Basic Greetings",
+              list_of_messages: [
+                  { user: userObj.userMessage },
+                  { ai: aiResponse }
+              ]
+            }
+          ]
+        }
+        updateUserConversations(userConversation);
       }
-      updateUserConversations(userConversation);
     }
-
-    // else if(userObj.userMessage && userObj.emailAddress){
-
-    // }
 
     if (userObj.emailAddress) {
       const userSchema = {
@@ -97,7 +89,8 @@ sockserver.on("connection", (ws) => {
         emailAddress: userObj.emailAddress,
       };
       createDatabaseAndCollections(userSchema);
-    } else {
+    } 
+    else {
       console.log("User does not have an email address");
     }
   });

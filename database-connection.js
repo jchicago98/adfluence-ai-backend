@@ -44,14 +44,29 @@ async function updateUserConversations(userConversations) {
     const query = { emailAddress: userConversations.emailAddress };
 
     try {
+      let listOfCurrentMessages = null;
       const result = await collection.find(query).toArray();
       if (result.length == 0) {
         await collection.insertOne(userConversations);
       }
       else if(result.length > 0){
+        const resultUserConversation = result[0].user_conversation;
+        resultUserConversation.forEach((obj)=>{
+          if(obj.topic == userConversations.user_conversation[0].topic){
+            listOfCurrentMessages = obj.list_of_messages;
+          }
+        });
+        listOfCurrentMessages = listOfCurrentMessages.concat(userConversations.user_conversation[0].list_of_messages);
+        userConversations.user_conversation[0].list_of_messages = listOfCurrentMessages;
         const filter = query;
-        const options = { upsert: true };
-        await collection.updateOne(filter, userConversations, options);
+        const update = {
+          $set: {
+            "user_conversation.$[element].list_of_messages": userConversations.user_conversation[0].list_of_messages,
+          },
+        };
+        const arrayFilters = [{ "element.topic": userConversations.user_conversation[0].topic }];
+        const options = { upsert: true, arrayFilters };
+        await collection.updateOne(filter, update, options);
       }
     } catch (err) {
       console.error("Error querying the collection:", err);
